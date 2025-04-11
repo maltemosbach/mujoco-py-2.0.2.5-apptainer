@@ -84,12 +84,12 @@ The easy solution is to `import mujoco_py` _before_ `import glfw`.
     builder = Builder(mujoco_path)
     cext_so_path = builder.get_so_file_path()
 
-    lockpath = os.path.join(os.path.dirname(cext_so_path), 'mujocopy-buildlock')
+    lockpath = os.path.join('/mujoco_py_apptainer', 'mujocopy-buildlock')
 
-    with LockFile(lockpath):
-        mod = None
-        force_rebuild = os.environ.get('MUJOCO_PY_FORCE_REBUILD')
-        if force_rebuild:
+    mod = None
+    force_rebuild = os.environ.get('MUJOCO_PY_FORCE_REBUILD')
+    if force_rebuild:
+        with LockFile(lockpath):
             # Try to remove the old file, ignore errors if it doesn't exist
             print("Removing old mujoco_py cext", cext_so_path)
             try:
@@ -102,8 +102,9 @@ The easy solution is to `import mujoco_py` _before_ `import glfw`.
             except ImportError:
                 print("Import error. Trying to rebuild mujoco_py.")
         if mod is None:
-            cext_so_path = builder.build()
-            mod = load_dynamic_ext('cymj', cext_so_path)
+            with LockFile(lockpath):
+                cext_so_path = builder.build()
+                mod = load_dynamic_ext('cymj', cext_so_path)
     return mod
 
 

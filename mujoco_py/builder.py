@@ -97,15 +97,15 @@ The easy solution is to `import mujoco_py` _before_ `import glfw`.
                 os.remove(cext_so_path)
             except OSError:
                 pass
-        if exists(cext_so_path):
-            try:
-                mod = load_dynamic_ext('cymj', cext_so_path)
-            except ImportError:
-                print("Import error. Trying to rebuild mujoco_py.")
-        if mod is None:
-            with LockFile(lockpath):
-                cext_so_path = builder.build()
-                mod = load_dynamic_ext('cymj', cext_so_path)
+    if exists(cext_so_path):
+        try:
+            mod = load_dynamic_ext('cymj', cext_so_path)
+        except ImportError:
+            print("Import error. Trying to rebuild mujoco_py.")
+    if mod is None:
+        with LockFile(lockpath):
+            cext_so_path = builder.build()
+            mod = load_dynamic_ext('cymj', cext_so_path)
     return mod
 
 
